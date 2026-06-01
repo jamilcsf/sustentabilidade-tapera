@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Sustentabilidade Tapera - ODS 6</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: var(--dark-color);">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="index.html">
+            <img src="img/Logo_cor_branca.png" alt="Logo Tapera" class="navbar-logo"> Sustentabilidade Tapera
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="index.html">Início</a></li>
+                <li class="nav-item"><a class="nav-link" href="denuncia.html">Denúncia</a></li>
+                <li class="nav-item"><a class="nav-link" href="infoMap.html">Mapa</a></li>
+                <li class="nav-item"><a class="nav-link active" href="forum.html">Fórum</a></li>
+                <li class="nav-item"><a class="nav-link" href="perfil.html">Perfil</a></li>
+                <li class="nav-item"><a class="nav-link" href="ambiental.html">Ambiental</a></li>
+                <li class="nav-item"><a class="nav-link" href="cadastro.html">Cadastro</a></li>
+                <li class="nav-item"><a class="nav-link" href="contato.html">Contato</a></li>
+                <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="sobre.html">Sobre</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3">
+                <h5 class="fw-bold text-primary mb-3"><i class="bi bi-plus-circle-fill"></i> Nova Discussão</h5>
+                <form id="formTopico">
+                    <div class="mb-2"><input type="text" id="titulo" class="form-control" placeholder="Título do tópico" required></div>
+                    <div class="mb-3"><textarea id="conteudo" class="form-control" rows="4" placeholder="O que pretende discutir?" required></textarea></div>
+                    <button type="submit" class="btn btn-primary w-100">Publicar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h4 class="fw-bold text-secondary mb-3">Tópicos da Comunidade</h4>
+            <div id="feedForum" class="d-flex flex-column gap-3"></div>
+        </div>
+    </div>
+</main>
+
+<footer class="py-4 text-white text-center" style="background-color: var(--dark-color);">&copy; 2026 Sustentabilidade Tapera</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE = 'http://localhost:8080/api';
+    // Pega o ID do usuário logado ou usa um ID fictício padrão para testes
+    const USUARIO_ID = JSON.parse(localStorage.getItem('tapera_usuario'))?.id || '12345';
+
+    // Buscar e renderizar tópicos (GET)
+    async function carregarTopicos() {
+        try {
+            const resp = await fetch(`${API_BASE}/topicos`);
+            const dados = await resp.json();
+            const topicos = Array.isArray(dados) ? dados : (dados.topicos ?? []);
+
+            document.getElementById('feedForum').innerHTML = topicos.map(t => `
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h5 class="fw-bold text-dark mb-0">${t.titulo}</h5>
+                            <small class="text-muted" style="font-size:0.75em;">${t.criadoEm ? new Date(t.criadoEm).toLocaleDateString('pt-BR') : ''}</small>
+                        </div>
+                        <p class="text-secondary small mb-3">${t.conteudo}</p>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm ${t.votos?.likes?.includes(USUARIO_ID) ? 'btn-success' : 'btn-outline-success'} btn-voto" data-id="${t.id}" data-tipo="like">
+                                <i class="bi bi-hand-thumbs-up-fill"></i> <span>${t.likesCount ?? t.likes ?? 0}</span>
+                            </button>
+                            <button class="btn btn-sm ${t.votos?.deslikes?.includes(USUARIO_ID) ? 'btn-danger' : 'btn-outline-danger'} btn-voto" data-id="${t.id}" data-tipo="deslike">
+                                <i class="bi bi-hand-thumbs-down-fill"></i> <span>${t.deslikesCount ?? t.deslikes ?? 0}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } catch {
+            console.error('Erro ao conectar com a API do Fórum Java.');
+        }
+    }
+
+    // Criar Tópico (POST)
+    document.getElementById('formTopico').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            titulo: document.getElementById('titulo').value.trim(),
+            conteudo: document.getElementById('conteudo').value.trim(),
+            usuarioId: USUARIO_ID
+        };
+
+        try {
+            const resp = await fetch(`${API_BASE}/topicos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (resp.ok) {
+                document.getElementById('formTopico').reset();
+                carregarTopicos();
+            }
+        } catch {
+            alert('Erro ao publicar tópico.');
+        }
+    });
+
+    // Delegar Cliques de Like/Deslike de forma Enxuta (POST)
+    document.getElementById('feedForum').addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-voto');
+        if (!btn) return;
+
+        const { id, tipo } = btn.dataset;
+        try {
+            // Rota REST para reação: /api/topicos/{id}/voto?tipo=like ou tipo=deslike
+            const resp = await fetch(`${API_BASE}/topicos/${id}/voto?tipo=${tipo}&usuarioId=${USUARIO_ID}`, {
+                method: 'POST'
+            });
+            if (resp.ok) carregarTopicos();
+        } catch {
+            console.error('Erro ao registrar reação.');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', carregarTopicos);
+</script>
+</body>
+</html>
