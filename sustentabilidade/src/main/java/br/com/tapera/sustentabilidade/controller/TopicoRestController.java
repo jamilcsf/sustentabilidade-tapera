@@ -1,14 +1,15 @@
 package br.com.tapera.sustentabilidade.controller;
 
+import br.com.tapera.sustentabilidade.dto.TopicoRequestDTO;
 import br.com.tapera.sustentabilidade.model.Topico;
 import br.com.tapera.sustentabilidade.model.Usuario;
 import br.com.tapera.sustentabilidade.service.TopicoService;
 import br.com.tapera.sustentabilidade.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/topicos")
@@ -22,31 +23,24 @@ public class TopicoRestController {
     private UsuarioService usuarioService;
 
     @GetMapping
-    public ResponseEntity<List<Topico>> listarTodos() { return ResponseEntity.ok(topicoService.listarTodos()); }
-
-    @PostMapping
-    public ResponseEntity<?> criar(@RequestBody Map<String, Object> payload) {
-        try {
-            Topico t = new Topico();
-            t.setTitulo((String) payload.get("titulo"));
-            t.setConteudo((String) payload.get("conteudo"));
-
-            Long usuarioId = Long.parseLong(payload.get("usuarioId").toString());
-            Usuario u = usuarioService.buscarPorId(usuarioId);
-            t.setUsuario(u);
-
-            return ResponseEntity.ok(topicoService.criar(t));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("erro", "Erro ao criar tópico"));
-        }
+    public ResponseEntity<List<Topico>> listarTodos() {
+        return ResponseEntity.ok(topicoService.listarTodos());
     }
 
-    @PostMapping("/{id}/voto")
-    public ResponseEntity<?> votar(@PathVariable Long id, @RequestParam String tipo) {
-        try {
-            return ResponseEntity.ok(topicoService.votar(id, tipo));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
+    @PostMapping
+    public ResponseEntity<?> criar(@Valid @RequestBody TopicoRequestDTO dto) {
+        // Busca o usuário no banco
+        Usuario u = usuarioService.buscarPorId(dto.usuarioId());
+        if (u == null) {
+            return ResponseEntity.badRequest().body("Usuário não encontrado");
         }
+
+        // Cria o tópico
+        Topico t = new Topico();
+        t.setTitulo(dto.titulo());
+        t.setConteudo(dto.conteudo());
+        t.setUsuario(u);
+
+        return ResponseEntity.ok(topicoService.criar(t));
     }
 }
