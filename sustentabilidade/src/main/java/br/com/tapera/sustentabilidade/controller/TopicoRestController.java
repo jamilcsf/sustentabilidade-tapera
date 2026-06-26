@@ -1,46 +1,35 @@
 package br.com.tapera.sustentabilidade.controller;
 
 import br.com.tapera.sustentabilidade.dto.TopicoRequestDTO;
-import br.com.tapera.sustentabilidade.model.Topico;
-import br.com.tapera.sustentabilidade.model.Usuario;
 import br.com.tapera.sustentabilidade.service.TopicoService;
-import br.com.tapera.sustentabilidade.service.UsuarioService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/topicos")
 @CrossOrigin(origins = "*")
 public class TopicoRestController {
 
-    @Autowired
-    private TopicoService topicoService;
+    private final TopicoService topicoService;
 
-    @Autowired
-    private UsuarioService usuarioService;
+    // Injeção via construtor (Padrão Ouro)
+    public TopicoRestController(TopicoService topicoService) {
+        this.topicoService = topicoService;
+    }
 
     @GetMapping
-    public ResponseEntity<List<Topico>> listarTodos() {
+    public ResponseEntity<?> listarTodos() {
         return ResponseEntity.ok(topicoService.listarTodos());
     }
 
     @PostMapping
     public ResponseEntity<?> criar(@Valid @RequestBody TopicoRequestDTO dto) {
-        // Busca o usuário no banco
-        Usuario u = usuarioService.buscarPorId(dto.usuarioId());
-        if (u == null) {
-            return ResponseEntity.badRequest().body("Usuário não encontrado");
+        try {
+            // O Service agora deve encapsular a lógica de buscar o usuário e salvar o tópico
+            return ResponseEntity.ok(topicoService.criar(dto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        // Cria o tópico
-        Topico t = new Topico();
-        t.setTitulo(dto.titulo());
-        t.setConteudo(dto.conteudo());
-        t.setUsuario(u);
-
-        return ResponseEntity.ok(topicoService.criar(t));
     }
 }

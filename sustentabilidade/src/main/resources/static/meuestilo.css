@@ -29,8 +29,13 @@ body {
 
 /* Botões */
 .btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    filter: brightness(90%);
 }
 
 /* Cards */
@@ -46,6 +51,25 @@ body {
     transform: translateY(-5px);
     border-color: var(--primary-color);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* --- NOVOS ESTILOS PARA FORMULÁRIOS --- */
+.form-control {
+    border-radius: calc(var(--border-radius) / 2) !important;
+    border: 1px solid #ced4da;
+    padding: 10px 15px;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+label {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 5px;
 }
 
 /* Mapa Leaflet */

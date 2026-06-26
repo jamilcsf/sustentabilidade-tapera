@@ -1,48 +1,63 @@
 package br.com.tapera.sustentabilidade.controller;
 
 import br.com.tapera.sustentabilidade.dto.DenunciaRequestDTO;
-import br.com.tapera.sustentabilidade.model.Denuncia;
+import br.com.tapera.sustentabilidade.dto.DenunciaResponseDTO;
+import br.com.tapera.sustentabilidade.dto.DenunciaUpdateDTO;
 import br.com.tapera.sustentabilidade.service.DenunciaService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Map;
+import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/denuncias")
-@CrossOrigin(origins = "*") // Importante para o front-end acessar
+@CrossOrigin(origins = "*")
 public class DenunciaController {
 
     private final DenunciaService service;
 
+    // Injeção via construtor (Obrigatório para o Padrão Ouro)
     public DenunciaController(DenunciaService service) {
         this.service = service;
     }
 
-    // LISTAR todas as denúncias
+    @PostMapping
+    public ResponseEntity<DenunciaResponseDTO> criar(
+            @RequestBody @Valid DenunciaRequestDTO dto,
+            UriComponentsBuilder uriBuilder) {
+
+        DenunciaResponseDTO response = service.salvar(dto);
+
+        // Criar a URI do novo recurso (Padrão RESTful)
+        URI uri = uriBuilder.path("/api/denuncias/{id}").buildAndExpand(response.id()).toUri();
+
+        return ResponseEntity.created(uri).body(response);
+    }
+
     @GetMapping
-    public ResponseEntity<?> listar() {
+    public ResponseEntity<List<DenunciaResponseDTO>> listar() {
         return ResponseEntity.ok(service.listarTodas());
     }
 
-    // CRIAR uma nova denúncia (com validação DTO)
-    @PostMapping
-    public ResponseEntity<?> criar(@Valid @RequestBody DenunciaRequestDTO dto) {
-        Denuncia salva = service.salvar(dto);
-        return ResponseEntity.ok(salva);
+    @GetMapping("/{id}")
+    public ResponseEntity<DenunciaResponseDTO> detalhar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 
-    // ATUALIZAR STATUS (Endpoint para o ciclo de vida da denúncia)
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<?> atualizarStatus(@PathVariable Long id, @RequestBody Map<String, String> payload) {
-        String novoStatus = payload.get("status");
+    @PutMapping("/{id}")
+    public ResponseEntity<DenunciaResponseDTO> atualizar(
+            @PathVariable Long id,
+            @RequestBody @Valid DenunciaUpdateDTO dto) {
 
-        if (novoStatus == null || novoStatus.isBlank()) {
-            return ResponseEntity.badRequest().body("O campo 'status' é obrigatório.");
-        }
+        return ResponseEntity.ok(service.atualizar(id, dto));
+    }
 
-        Denuncia atualizada = service.atualizarStatus(id, novoStatus);
-        return ResponseEntity.ok(atualizada);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }
