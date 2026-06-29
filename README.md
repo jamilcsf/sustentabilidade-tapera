@@ -56,7 +56,3 @@ Conforme o planejamento, o sistema implementa:
 *Desenvolvido por: Arthur Moreira, Douglas do Carmo, Gleyson Ferreira e Jamil Cherem.*
 
 ---
-
-Agora é só copiar e colar isso no seu `README.md` dentro do GitHub. Com esse conteúdo, o professor terá uma visão clara da qualidade técnica e da organização do trabalho.
-
-Boa sorte nos 3 horas de finalização! Se precisar ajustar mais alguma coisa no relatório, estou por aqui.
