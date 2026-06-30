@@ -7,12 +7,17 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
+@Table(name = "tb_usuarios")
 public class Usuario implements UserDetails { // Implementa UserDetails
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
+
+    @Column(name = "email")
     private String email;
+
+    @Column(name = "senha")
     private String senha;
 
     // Métodos obrigatórios da interface UserDetails

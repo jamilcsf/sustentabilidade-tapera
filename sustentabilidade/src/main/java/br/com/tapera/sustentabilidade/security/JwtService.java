@@ -1,43 +1,40 @@
 package br.com.tapera.sustentabilidade.security;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Service;
-import java.security.Key;
 import java.util.Date;
+import javax.crypto.SecretKey;
+import org.springframework.stereotype.Service;
+import io.jsonwebtoken.Jwts;
 
 @Service
 public class JwtService {
 
-    // Chave secreta gerada automaticamente para assinar o token.
-    // Em produção, isso deveria estar no application.properties
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    // Gerando chave segura para HS256
+    private final SecretKey key = Jwts.SIG.HS256.key().build();
 
-    // Método para gerar o Token JWT
     public String gerarToken(String email) {
         return Jwts.builder()
-                .setSubject(email) // O "dono" do token será o e-mail
-                .setIssuedAt(new Date()) // Data de emissão
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Expira em 1 hora
-                .signWith(key) // Assina com a nossa chave secreta
+                .subject(email) // Mudou de .setSubject() para .subject()
+                .issuedAt(new Date()) // Mudou de .setIssuedAt() para .issuedAt()
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Mudou para .expiration()
+                .signWith(key)
                 .compact();
     }
 
-    // Método para extrair o e-mail de dentro do token (usado no Filtro)
     public String extrairEmail(String token) {
         return Jwts.parser()
-                .setSigningKey(key)
+                .verifyWith(key) // Mudou de .setSigningKey() para .verifyWith()
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token) // Mudou de .parseClaimsJws() para .parseSignedClaims()
+                .getPayload() // Mudou de .getBody() para .getPayload()
                 .getSubject();
     }
 
-    // Método para validar se o token ainda é válido
     public boolean isTokenValido(String token) {
         try {
-            Jwts.parser().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token);
             return true;
         } catch (Exception e) {
             return false;

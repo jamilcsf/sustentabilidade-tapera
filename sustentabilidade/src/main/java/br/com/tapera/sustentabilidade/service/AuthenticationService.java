@@ -1,12 +1,12 @@
 package br.com.tapera.sustentabilidade.service;
 
-import br.com.tapera.sustentabilidade.dto.AutenticacaoDTO;
-import br.com.tapera.sustentabilidade.repository.UsuarioRepository;
-import br.com.tapera.sustentabilidade.security.JwtService; // Importe o JwtService que criamos
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import br.com.tapera.sustentabilidade.dto.AutenticacaoDTO;
+import br.com.tapera.sustentabilidade.security.JwtService; // Importe o JwtService que criamos
 
 @Service
 public class AuthenticationService {
@@ -27,7 +27,8 @@ public class AuthenticationService {
         // 2. O Spring Security valida as credenciais contra o banco
         Authentication auth = authenticationManager.authenticate(authToken);
 
-        // 3. Se autenticado, gera o token JWT usando o email (que no Spring Security é o 'principal')
+        // 3. Se autenticado, gera o token JWT usando o email (que no Spring Security é
+        // o 'principal')
         return jwtService.gerarToken(auth.getName());
     }
 }

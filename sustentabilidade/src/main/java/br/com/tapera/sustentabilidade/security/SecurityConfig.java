@@ -19,7 +19,6 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // Injeção do filtro via construtor
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
@@ -37,10 +36,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/denuncias/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form.disable())
-                // Registra o filtro de JWT antes do filtro padrão de autenticação
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+                .formLogin(form -> form.disable());
+                //.addFilterAt(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
