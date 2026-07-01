@@ -1,3 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informações | Sustentabilidade Tapera</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="meuestilo.css">
+    <style>
+        .service-card { border-radius: 15px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar Dinâmica -->
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #2c3e50;">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">Sustentabilidade Tapera</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="index.html">Início</a>
+                <a class="nav-link" href="forum.html">Fórum</a>
+                <a class="nav-link" href="infoMap.html">Mapa</a>
+                <a class="nav-link" href="denuncia.html">Denunciar</a>
+            </div>
+            <div class="ms-lg-3" id="auth-menu"></div>
+        </div>
+    </div>
+</nav>
+
 <div class="container mt-5">
     <div class="service-card p-5">
         <h2 class="text-primary mb-4">Sobre o Projeto Sustentabilidade Tapera</h2>
@@ -17,3 +50,36 @@
         <p>Desenvolvemos uma API robusta em Java Spring Boot integrada a um front-end dinâmico. Os cidadãos podem registrar ocorrências via formulário, que são processadas, validadas geograficamente e exibidas em um mapa interativo para gestão pública.</p>
     </div>
 </div>
+
+<footer class="text-center mt-5 p-4 text-secondary">
+    <p>&copy; 2026 - Sustentabilidade Tapera</p>
+</footer>
+
+<script>
+    // Lógica para alternar menu Login/Logout e Proteção de acesso
+    document.addEventListener("DOMContentLoaded", function() {
+        const authMenu = document.getElementById('auth-menu');
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            authMenu.innerHTML = '<button onclick="logout()" class="btn btn-outline-danger btn-sm">Sair</button>';
+        } else {
+            // Como esta é uma página informativa, você pode decidir se quer exigir login ou não.
+            // Se quiser exigir, descomente as linhas abaixo:
+            /*
+            alert("Você precisa estar logado!");
+            window.location.href = 'login.html';
+            */
+            authMenu.innerHTML = '<a href="login.html" class="btn btn-warning btn-sm">Entrar</a>';
+        }
+    });
+
+    function logout() {
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
